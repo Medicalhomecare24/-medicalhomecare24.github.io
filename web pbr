@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Manajemen Pasien Prolanis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================================== */
+        /* 1. Gaya Dasar & Tata Letak Global */
+        /* ========================================================== */
+        :root {
+            --main-bg-light: #eef2f7;
+            --card-bg-light: #f7fafc;
+            --text-color-light: #333;
+            --heading-color-light: #2d3748;
+            --border-color-light: #e2e8f0;
+            --shadow-color-light: rgba(0, 0, 0, 0.1);
+
+            --main-bg-dark: #1a202c;
+            --card-bg-dark: #2d3748;
+            --text-color-dark: #e2e8f0;
+            --heading-color-dark: #e2e8f0;
+            --border-color-dark: #4a5568;
+            --shadow-color-dark: rgba(0, 0, 0, 0.2);
+
+            --primary-color: #4c669f;
+            --secondary-color: #2196f3;
+            --success-color: #38a169;
+            --warning-color: #ed8936;
+            --danger-color: #e53e3e;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--main-bg-light);
+            color: var(--text-color-light);
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark {
+            background: var(--main-bg-dark);
+            color: var(--text-color-dark);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0px auto;
+            padding: 30px;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 10px 30px var(--shadow-color-light);
+        }
+
+        body.dark .container {
+            background: var(--card-bg-dark);
+            box-shadow: 0 10px 30px var(--shadow-color-dark);
+        }
+
+        .card {
+            background: var(--card-bg-light);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark .card {
+            background: var(--border-color-dark);
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* ========================================================== */
+        /* 2. Gaya untuk Tombol Switch Tema */
+        /* ========================================================== */
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            cursor: pointer;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            background-color: #f6ad55;
+        }
+
+        /* ========================================================== */
+        /* 3. Formulir & Input */
+        /* ========================================================== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .field {
+            margin-bottom: 0;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .field-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .field-group input {
+            width: auto;
+            flex-grow: 1;
+        }
+
+        .field-group span {
+            white-space: nowrap;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+            color: #4a5568;
+        }
+
+        body.dark label {
+            color: #cbd5e0;
+        }
+
+        input:not([type="checkbox"]):not([type="radio"]),
+        select,
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color-light);
+            border-radius: 10px;
+            box-sizing: border-box;
+            background: white;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:not([type="checkbox"]):not([type="radio"]):focus,
+        select:focus,
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 102, 159, 0.2);
+        }
+
+        body.dark input:not([type="checkbox"]):not([type="radio"]),
+        body.dark select,
+        body.dark .search-input {
+            background: var(--card-bg-dark);
+            border-color: var(--border-color-dark);
+            color: var(--text-color-dark);
+        }
+
+        .error {
+            border-color: var(--danger-color) !important;
+        }
+
+        .error-msg {
+            color: var(--danger-color);
+            font-size: 13px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* ========================================================== */
+        /* 4. Checkbox & Radio */
+        /* ========================================================== */
+        .checkbox-group,
+        .radio-group {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 400;
+            margin-right: 15px;
+        }
+
+        .checkbox-group input,
+        .radio-group input {
+            display: none;
+        }
+
+        .checkbox-group label::before,
+        .radio-group label::before {
+            content: '';
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #a0aec0;
+            margin-right: 8px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .checkbox-group label::before {
+            border-radius: 4px;
+        }
+
+        .radio-group label::before {
+            border-radius: 50%;
+        }
+
+        input:checked + label::before {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .radio-group input:checked + label::before {
+            box-shadow: inset 0 0 0 4px #fff;
+        }
+
+        .checkbox-group input:checked + label::before {
+            content: '\2713';
+            font-size: 14px;
+            color: white;
+            text-align: center;
+            line-height: 14px;
+        }
+
+        /* ========================================================== */
+        /* 5. Tombol Aksi */
+        /* ========================================================== */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn,
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover,
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+        }
+
+        .btn-refresh {
+            background: var(--success-color);
+        }
+
+        .btn-edit {
+            background: var(--warning-color);
+        }
+
+        .btn-del {
+            background: var(--danger-color);
+        }
+
+        .btn-wa {
+            background: #25d366;
+        }
+
+        .btn-called {
+            background: #4CAF50;
+        }
+
+        /* ========================================================== */
+        /* 6. Tabel & Status */
+        /* ========================================================== */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-radius: 8px;
+        }
+
+        th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 700;
+        }
+
+        td {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark td {
+            background: var(--card-bg-dark);
+        }
+
+        tr:hover td {
+            transform: scale(1.01);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        .late {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        .ontime {
+            color: var(--success-color);
+        }
+
+        .label {
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    
+        /* ========================================================== */
+        /* 7. Modal & Statistik */
+        /* ========================================================== */
+        h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--heading-color-light);
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        body.dark h3 {
+            color: var(--heading-color-dark);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 0px;
+        }
+
+        .modal-header .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-body p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        .stat-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: #e2e8f0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #4a5568;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-item span {
+            display: block;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .dm { background: #fed7d7; color: #c53030; }
+        .dm span { color: #e53e3e; }
+        .ht { background: #e0f2fe; color: #2a69ac; }
+        .ht span { color: #2b6cb0; }
+        .prolanis { background: #c6f6d5; color: #2f855a; }
+        .prolanis span { color: #38a169; }
+        .non-prolanis { background: #e9d8fd; color: #6b46c1; }
+        .non-prolanis span { color: #805ad5; }
+
+        /* ========================================================== */
+        /* 8. Responsif */
+        /* ========================================================== */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px;
+            }
+            .navbar h1 { margin-bottom: 10px; }
+            .container { margin: 20px auto; padding: 15px; }
+            h3 { font-size: 18px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: auto; }
+            table, thead, tbody, th, td, tr { display: block; }
+            tr { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; }
+            th { display: none; }
+            td {
+                border: none;
+                position: relative;
+                padding-left: 50%;
+                text-align: left !important;
+            }
+            td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+            .btn-group { flex-direction: column; align-items: stretch; }
+            button { width: 100%; }
+            .modal-content { width: 95%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>Manajemen Pasien Prolanis</h1>
+        <label class="theme-switch">
+            <input type="checkbox" id="theme-toggle">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="container">
+        <!-- Statistik Pasien -->
+        <div class="card">
+            <h3><i class="fas fa-chart-bar"></i> Statistik Pasien</h3>
+            <div class="stat-container">
+                <div class="stat-item dm">DM<span id="countDM">0</span></div>
+                <div class="stat-item ht">HT<span id="countHT">0</span></div>
+                <div class="stat-item prolanis">Prolanis<span id="countProlanis">0</span></div>
+                <div class="stat-item non-prolanis">Non-Prolanis<span id="countNonProlanis">0</span></div>
+            </div>
+        </div>
+
+        <!-- Formulir Pasien -->
+        <div class="card">
+            <h3><i class="fas fa-user-plus"></i> Formulir Pasien</h3>
+            <form id="formPasien">
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="nama">Nama Pasien</label>
+                        <input type="text" id="nama" name="nama" placeholder="Nama lengkap">
+                        <span id="namaError" class="error-msg"></span>
+                    </div>
+                    <div class="field">
+                        <label for="nik">No BPJS / NIK</label>
+                        <input type="text" id="nik" name="nik" placeholder="16 digit">
+                        <span id="nikError" class="error-msg"></span>
+                    </div>
+                    <div class="field full-width">
+                        <label for="hp">No HP</label>
+                        <input type="text" id="hp" name="hp" placeholder="08xxxxxxxxxx">
+                        <span id="hpError" class="error-msg"></span>
+                    </div>
+                    <div class="field">
+                        <label for="kesadaran">Kesadaran</label>
+                        <select id="kesadaran" name="kesadaran">
+                            <option value="">Pilih...</option>
+                            <option value="Compos Mentis">Compos Mentis</option>
+                            <option value="Apatis">Apatis</option>
+                            <option value="Somnolen">Somnolen</option>
+                            <option value="Sopor">Sopor</option>
+                            <option value="Koma">Koma</option>
+                        </select>
+                        <span id="kesadaranError" class="error-msg"></span>
+                    </div>
+                    <div class="field">
+                        <label for="letakTD">Letak TD</label>
+                        <select id="letakTD" name="letakTD">
+                            <option value="">Pilih...</option>
+                            <option value="Lengan Kanan">Lengan Kanan</option>
+                            <option value="Lengan Kiri">Lengan Kiri</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="sistole">Sistole (MmHg)</label>
+                        <input type="number" id="sistole" name="sistole">
+                        <span id="sistoleError" class="error-msg"></span>
+                    </div>
+                    <div class="field">
+                        <label for="diastole">Diastole (MmHg)</label>
+                        <input type="number" id="diastole" name="diastole">
+                        <span id="diastoleError" class="error-msg"></span>
+                    </div>
+                    <div class="field">
+                        <label for="gulaDarah">Gula Darah (mg/dL)</label>
+                        <input type="number" id="gulaDarah" name="gulaDarah">
+                        <span id="gulaDarahError" class="error-msg"></span>
+                    </div>
+                    <div class="field">
+                        <label>Jenis PRB</label>
+                        <div>
+                            <span class="checkbox-group">
+                                <input type="checkbox" id="penyakitDM" name="jenisPrb" value="DM">
+                                <label for="penyakitDM">DM</label>
+                            </span>
+                            <span class="checkbox-group">
+                                <input type="checkbox" id="penyakitHT" name="jenisPrb" value="HT">
+                                <label for="penyakitHT">HT</label>
+                            </span>
+                        </div>
+                        <span id="penyakitError" class="error-msg"></span>
+                    </div>
+                    <div class="field">
+                        <label>Status Prolanis</label>
+                        <div>
+                            <span class="radio-group">
+                                <input type="radio" id="prolanisYa" name="statusProlanis" value="Ya">
+                                <label for="prolanisYa">Ya</label>
+                            </span>
+                            <span class="radio-group">
+                                <input type="radio" id="prolanisTidak" name="statusProlanis" value="Tidak">
+                                <label for="prolanisTidak">Tidak</label>
+                            </span>
+                        </div>
+                        <span id="prolanisError" class="error-msg"></span>
+                    </div>
+                    <div class="field full-width">
+                        <label for="tglAmbilObat">Jadwal Pengambilan Obat (DD-MM-YYYY)</label>
+                        <input type="text" id="tglAmbilObat" name="tglAmbilObat" placeholder="contoh: 20-01-2025">
+                        <span id="tglAmbilObatError" class="error-msg"></span>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary" id="tambahBtn"><i class="fas fa-plus-circle"></i> Tambah Data</button>
+                    <button type="button" id="resetBtn" class="btn-refresh"><i class="fas fa-undo-alt"></i> Reset Formulir</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Daftar Pasien -->
+        <div class="card">
+            <h3><i class="fas fa-clipboard-list"></i> Daftar Pasien</h3>
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Cari nama atau NIK pasien...">
+            </div>
+            <div class="table-responsive">
+                <table id="tabelDaftarPasien">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>NIK</th>
+                            <th>No HP</th>
+                            <th>Penyakit</th>
+                            <th>Prolanis</th>
+                            <th>Tgl Obat</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data akan dimasukkan oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Daftar Pasien Hubungi -->
+        <div class="card">
+            <h3><i class="fas fa-phone-volume"></i> Daftar Pasien Perlu Dihubungi</h3>
+            <div class="table-responsive">
+                <table id="tabelHubungi">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>No HP</th>
+                            <th>Tgl Obat</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data akan dimasukkan oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Pasien -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detail Pasien</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modalBody" class="modal-body">
+                <!-- Detail pasien akan dimasukkan di sini oleh JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ========================================================== */
+        /* 1. Variabel Global */
+        /* ========================================================== */
+        let dataPasien = JSON.parse(localStorage.getItem("dataPasien")) || [];
+        let editIndex = null;
+        // Nomor WhatsApp tidak lagi statis, akan diambil dari data pasien
+
+        const formPasien = document.getElementById("formPasien");
+        const tabelDaftarPasien = document.getElementById("tabelDaftarPasien");
+        const tabelHubungi = document.getElementById("tabelHubungi");
+        const detailModal = document.getElementById("detailModal");
+        const themeToggle = document.getElementById("theme-toggle");
+        const searchInput = document.getElementById('searchInput');
+
+        /* ========================================================== */
+        /* 2. Fungsi Utilitas */
+        /* ========================================================== */
+        const formatTanggal = (dateStr) => {
+            if (!dateStr) return '';
+            const [day, month, year] = dateStr.split('-');
+            const date = new Date(`${year}-${month}-${day}`);
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('id-ID', options);
+        };
+
+        const formatWhatsAppNumber = (phoneNumber) => {
+            let formattedNumber = phoneNumber.trim();
+            if (formattedNumber.startsWith('0')) {
+                formattedNumber = '62' + formattedNumber.substring(1);
+            }
+            if (!formattedNumber.startsWith('62')) {
+                formattedNumber = '62' + formattedNumber;
+            }
+            return formattedNumber;
+        };
+
+        const resetForm = () => {
+            formPasien.reset();
+            document.querySelectorAll('.error-msg').forEach(el => el.textContent = "");
+            document.querySelectorAll('input, select').forEach(el => el.classList.remove("error"));
+            editIndex = null;
+            document.getElementById("tambahBtn").textContent = "Tambah Data";
+        };
+
+        const validateForm = () => {
+            let valid = true;
+            document.querySelectorAll('.error-msg').forEach(el => el.textContent = "");
+            document.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), select').forEach(el => el.classList.remove("error"));
+
+            const fields = ["nama", "nik", "hp", "kesadaran", "sistole", "diastole", "tglAmbilObat"];
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.classList.add("error");
+                    document.getElementById(fieldId + "Error").textContent = `⚠ Kolom wajib diisi!`;
+                    valid = false;
+                }
+            });
+
+            const tglAmbilObatInput = document.getElementById("tglAmbilObat").value.trim();
+            const regexDDMMYYYY = /^\d{2}-\d{2}-\d{4}$/;
+            const match = tglAmbilObatInput.match(regexDDMMYYYY);
+
+            if (!match) {
+                document.getElementById("tglAmbilObat").classList.add("error");
+                document.getElementById("tglAmbilObatError").textContent = "⚠ Format tanggal harus DD-MM-YYYY!";
+                valid = false;
+            } else {
+                const [day, month, year] = tglAmbilObatInput.split('-').map(Number);
+                const date = new Date(year, month - 1, day);
+                if (isNaN(date.getTime()) || date.getDate() !== day || date.getMonth() + 1 !== month || date.getFullYear() !== year) {
+                    document.getElementById("tglAmbilObat").classList.add("error");
+                    document.getElementById("tglAmbilObatError").textContent = "⚠ Tanggal tidak valid!";
+                    valid = false;
+                }
+            }
+            
+            const penyakitTerpilih = document.querySelectorAll('input[name="jenisPrb"]:checked');
+            if (penyakitTerpilih.length === 0) {
+                document.getElementById("penyakitError").textContent = "⚠ Pilih setidaknya satu Jenis PRB!";
+                valid = false;
+            }
+
+            const prolanis = document.querySelector('input[name="statusProlanis"]:checked');
+            if (!prolanis) {
+                document.getElementById("prolanisError").textContent = "⚠ Pilih salah satu Status Prolanis!";
+                valid = false;
+            }
+
+            const nikInput = document.getElementById("nik");
+            if (nikInput.value.length !== 16 || !/^\d+$/.test(nikInput.value)) {
+                nikInput.classList.add("error");
+                document.getElementById("nikError").textContent = "⚠ NIK harus 16 digit angka!";
+                valid = false;
+            }
+
+            const hpInput = document.getElementById("hp");
+            if (hpInput.value.length < 10 || hpInput.value.length > 13 || !/^\d+$/.test(hpInput.value)) {
+                hpInput.classList.add("error");
+                document.getElementById("hpError").textContent = "⚠ Nomor HP harus 10-13 digit angka!";
+                valid = false;
+            }
+
+            return valid;
+        };
+
+        const setTheme = (isDark) => {
+            document.body.classList.toggle("dark", isDark);
+            localStorage.setItem("theme", isDark ? "dark" : "light");
+        };
+
+        /* ========================================================== */
+        /* 3. Fungsi Manajemen Data & Tampilan */
+        /* ========================================================== */
+        const updateStatistik = () => {
+            let countDM = 0,
+                countHT = 0,
+                countProlanis = 0,
+                countNonProlanis = 0;
+
+            dataPasien.forEach(pasien => {
+                if (pasien.penyakit.includes('DM')) countDM++;
+                if (pasien.penyakit.includes('HT')) countHT++;
+                if (pasien.prolanis === 'Ya') countProlanis++;
+                else countNonProlanis++;
+            });
+
+            document.getElementById('countDM').textContent = countDM;
+            document.getElementById('countHT').textContent = countHT;
+            document.getElementById('countProlanis').textContent = countProlanis;
+            document.getElementById('countNonProlanis').textContent = countNonProlanis;
+        };
+
+        const renderTabel = (filterText = '') => {
+            if (!tabelDaftarPasien || !tabelHubungi) {
+                console.warn("Elemen tabel tidak ditemukan.");
+                return;
+            }
+
+            const tbodyDaftar = tabelDaftarPasien.querySelector("tbody");
+            const tbodyHubungi = tabelHubungi.querySelector("tbody");
+            if (!tbodyDaftar || !tbodyHubungi) {
+                console.warn("Elemen <tbody> tidak ditemukan.");
+                return;
+            }
+            tbodyDaftar.innerHTML = "";
+            tbodyHubungi.innerHTML = "";
+            
+            const today = new Date().setHours(0, 0, 0, 0);
+
+            const filteredData = dataPasien.filter(p => {
+                const nama = (p.nama || '').toLowerCase();
+                const nik = (p.nik || '').toLowerCase();
+                return nama.includes(filterText.toLowerCase()) || nik.includes(filterText.toLowerCase());
+            });
+
+            filteredData.forEach((p, i) => {
+                const [day, month, year] = p.tanggal.split('-');
+                const tglAmbilTimestamp = new Date(`${year}-${month}-${day}`).setHours(0, 0, 0, 0);
+                const statusClass = tglAmbilTimestamp < today ? "late" : "ontime";
+                const labels = (p.penyakit || '').split(', ').map(penyakit => `<span class="label ${penyakit.toLowerCase().replace(' ', '')}">${penyakit}</span>`).join('');
+
+                const rowDaftar = document.createElement("tr");
+                rowDaftar.innerHTML = `
+                    <td data-label="No">${i + 1}</td>
+                    <td data-label="Nama" ondblclick="showDetail(${i})">${p.nama}</td>
+                    <td data-label="NIK">${p.nik}</td>
+                    <td data-label="No HP">${p.hp}</td>
+                    <td data-label="Penyakit">${labels}</td>
+                    <td data-label="Prolanis">${p.prolanis}</td>
+                    <td data-label="Tgl Obat" class="${statusClass}">${p.tanggal}</td>
+                    <td data-label="Aksi">
+                        <button class="btn-edit" onclick="editPasien(${i})"><i class="fas fa-pen"></i></button>
+                        <button class="btn-del" onclick="hapusPasien(${i})"><i class="fas fa-trash-alt"></i></button>
+                    </td>`;
+                tbodyDaftar.appendChild(rowDaftar);
+
+                if (tglAmbilTimestamp <= today && !p.sudahDihubungi) {
+                    const formattedHp = formatWhatsAppNumber(p.hp);
+                    const pesanOtomatis = encodeURIComponent(`Halo ${p.nama}, kami dari Klinik Sehat ingin mengingatkan untuk pengambilan obat Anda pada tanggal ${p.tanggal}. Terima kasih.`);
+                    const rowHubungi = document.createElement("tr");
+                    rowHubungi.innerHTML = `
+                        <td data-label="No">${i + 1}</td>
+                        <td data-label="Nama">${p.nama}</td>
+                        <td data-label="No HP">${p.hp}</td>
+                        <td data-label="Tgl Obat">${p.tanggal}</td>
+                        <td data-label="Aksi">
+                            <a href="https://wa.me/${formattedHp}?text=${pesanOtomatis}" target="_blank">
+                                <button class="btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                            </a>
+                            <button class="btn-called" onclick="tindaklanjutiPasien(${i})"><i class="fas fa-check-circle"></i> Sudah Dihubungi</button>
+                        </td>`;
+                    tbodyHubungi.appendChild(rowHubungi);
+                }
+            });
+            updateStatistik();
+        };
+
+        const simpanPasien = (e) => {
+            e.preventDefault();
+            if (!validateForm()) return;
+            
+            const newData = {
+                nama: document.getElementById("nama").value.trim(),
+                nik: document.getElementById("nik").value.trim(),
+                hp: document.getElementById("hp").value.trim(),
+                kesadaran: document.getElementById("kesadaran").value,
+                letakTD: document.getElementById("letakTD")?.value || '',
+                sistole: document.getElementById("sistole").value,
+                diastole: document.getElementById("diastole").value,
+                gulaDarah: document.getElementById("gulaDarah")?.value || '',
+                penyakit: [...document.querySelectorAll('input[name="jenisPrb"]:checked')].map(cb => cb.value).join(', '),
+                prolanis: document.querySelector('input[name="statusProlanis"]:checked').value,
+                tanggal: document.getElementById("tglAmbilObat").value.trim(),
+                sudahDihubungi: false
+            };
+
+            if (editIndex !== null) {
+                newData.sudahDihubungi = dataPasien[editIndex].sudahDihubungi;
+                dataPasien[editIndex] = newData;
+                alert("Data pasien berhasil diperbarui!");
+            } else {
+                dataPasien.push(newData);
+                alert("Data pasien berhasil disimpan!");
+            }
+
+            localStorage.setItem("dataPasien", JSON.stringify(dataPasien));
+            resetForm();
+            renderTabel();
+        };
+
+        const hapusPasien = (i) => {
+            if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+                dataPasien.splice(i, 1);
+                localStorage.setItem("dataPasien", JSON.stringify(dataPasien));
+                renderTabel();
+            }
+        };
+
+        const editPasien = (i) => {
+            const p = dataPasien[i];
+            document.getElementById("nama").value = p.nama;
+            document.getElementById("nik").value = p.nik;
+            document.getElementById("hp").value = p.hp;
+            document.getElementById("kesadaran").value = p.kesadaran;
+            document.getElementById("letakTD").value = p.letakTD || '';
+            document.getElementById("sistole").value = p.sistole;
+            document.getElementById("diastole").value = p.diastole;
+            document.getElementById("gulaDarah").value = p.gulaDarah || '';
+            document.getElementById("tglAmbilObat").value = p.tanggal;
+
+            document.querySelectorAll('input[name="jenisPrb"]').forEach(checkbox => {
+                checkbox.checked = p.penyakit.includes(checkbox.value);
+            });
+            
+            const prolanisRadio = document.querySelector(`input[name="statusProlanis"][value="${p.prolanis}"]`);
+            if (prolanisRadio) {
+                prolanisRadio.checked = true;
+            }
+
+            editIndex = i;
+            document.getElementById("tambahBtn").textContent = "Simpan Perubahan";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+
+        const tindaklanjutiPasien = (index) => {
+            if (confirm("Apakah Anda yakin pasien ini sudah dihubungi?")) {
+                dataPasien[index].sudahDihubungi = true;
+                localStorage.setItem("dataPasien", JSON.stringify(dataPasien));
+                renderTabel();
+            }
+        };
+
+        const showDetail = (i) => {
+            const p = dataPasien[i];
+            const today = new Date();
+            const [day, month, year] = p.tanggal.split('-');
+            const firstDate = new Date(`${year}-${month}-${day}T00:00:00`); 
+            const diff = Math.floor((today - firstDate) / (1000 * 60 * 60 * 24));
+
+            const labels = (p.penyakit || '').split(', ').map(penyakit => `<span class="label ${penyakit.toLowerCase().replace(' ', '')}">${penyakit}</span>`).join('');
+            const modalBody = document.getElementById("modalBody");
+
+            if (modalBody) {
+                modalBody.innerHTML = `
+                    <p><b>Nama:</b> ${p.nama}</p>
+                    <p><b>No BPJS / NIK:</b> ${p.nik}</p>
+                    <p><b>No HP:</b> ${p.hp}</p>
+                    <p><b>Kesadaran:</b> ${p.kesadaran}</p>
+                    <p><b>Pemeriksaan TD:</b> ${p.letakTD || '-'}</p>
+                    <p><b>Sistole/Diastole:</b> ${p.sistole}/${p.diastole} MmHg</p>
+                    <p><b>Gula Darah:</b> ${p.gulaDarah || '-'} mg/dL</p>
+                    <p><b>Penyakit:</b> ${labels}</p>
+                    <p><b>Prolanis:</b> ${p.prolanis}</p>
+                    <p><b>Riwayat Obat:</b> ${diff} hari sejak ${p.tanggal}</p>`;
+            }
+            detailModal.style.display = "flex";
+        };
+
+        const closeModal = () => {
+            if (detailModal) {
+                detailModal.style.display = "none";
+            }
+        };
+
+        /* ========================================================== */
+        /* 4. Event Listener */
+        /* ========================================================== */
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTabel();
+
+            if (formPasien) {
+                formPasien.addEventListener('submit', simpanPasien);
+            }
+            if (document.getElementById("resetBtn")) {
+                document.getElementById("resetBtn").addEventListener("click", resetForm);
+            }
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    renderTabel(e.target.value);
+                });
+            }
+            if (detailModal) {
+                detailModal.addEventListener("click", (e) => {
+                    if (e.target.id === "detailModal") closeModal();
+                });
+            }
+
+            if (themeToggle) {
+                const savedTheme = localStorage.getItem("theme");
+                if (savedTheme) {
+                    setTheme(savedTheme === "dark");
+                }
+                themeToggle.addEventListener("change", () => setTheme(themeToggle.checked));
+            }
+            
+            window.hapusPasien = hapusPasien;
+            window.editPasien = editPasien;
+            window.tindaklanjutiPasien = tindaklanjutiPasien;
+            window.showDetail = showDetail;
+            window.closeModal = closeModal;
+        });
+    </script>
+</body>
+</html>
